@@ -11,13 +11,23 @@
 #define kViewControllerCount    5
 
 @interface FFPagingViewController () <UIScrollViewDelegate>
-@property(nonatomic, weak) UIScrollView *scrollview;
+@property(nonatomic, weak) UIScrollView *scrollView;
 @property(nonatomic, strong) NSMutableDictionary *displayVcs;
 @property(nonatomic, strong) NSMutableDictionary *memoryCache;
 @end
 
 @implementation FFPagingViewController
 #pragma mark - init
+- (instancetype)initWithSubviewFrame:(CGRect)frame {
+    self = [super init];
+    if (self) {
+        self.view.frame = frame;
+        self.scrollView.frame = frame;
+        self.scrollView.contentSize = CGSizeMake([self childViewControllerCount] * self.scrollView.frame.size.width, self.scrollView.frame.size.height);
+    }
+    return self;
+}
+
 - (void)initializedViewControllerAtIndex:(NSInteger)index
 {
     UIViewController *vc = [self.memoryCache objectForKey:@(index)];
@@ -37,14 +47,6 @@
     // Do any additional setup after loading the view.
 }
 
-- (void)viewWillLayoutSubviews
-{
-    [super viewWillLayoutSubviews];
-    
-    self.scrollview.frame = self.view.bounds;
-    self.scrollview.contentSize = CGSizeMake([self childViewControllerCount] * self.scrollview.frame.size.width, self.scrollview.frame.size.height);
-}
-
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
@@ -62,9 +64,7 @@
         [vc removeFromParentViewController];
     }
     
-    self.scrollview.frame = self.view.frame;
-    self.scrollview.contentSize = CGSizeMake([self childViewControllerCount] * self.scrollview.frame.size.width, self.scrollview.frame.size.height);
-    [self scrollViewDidScroll:self.scrollview];
+    [self scrollViewDidScroll:self.scrollView];
 }
 
 - (NSInteger)childViewControllerCount
@@ -85,8 +85,8 @@
     [self addChildViewController:childController];
     [self.displayVcs setObject:childController forKey:@(index)];
     [childController didMoveToParentViewController:self];
-    [self.scrollview addSubview:childController.view];
-    childController.view.frame = CGRectMake(index * [UIScreen mainScreen].bounds.size.width, 0, self.scrollview.frame.size.width, self.scrollview.frame.size.height);
+    [self.scrollView addSubview:childController.view];
+    childController.view.frame = CGRectMake(index * [UIScreen mainScreen].bounds.size.width, 0, self.scrollView.frame.size.width, self.scrollView.frame.size.height);
 }
 
 - (void)removeChildViewController:(UIViewController *)childController atIndex:(NSInteger)index
@@ -147,7 +147,7 @@
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
     if ([self.delegate respondsToSelector:@selector(customPagingViewController:slideIndex:)]) {
-        [self.delegate customPagingViewController:self slideIndex:scrollView.contentOffset.x/self.scrollview.frame.size.width];
+        [self.delegate customPagingViewController:self slideIndex:scrollView.contentOffset.x/self.scrollView.frame.size.width];
     }
 }
 
@@ -158,18 +158,18 @@
     }
 }
 
-#pragma mark - setter
+#pragma mark - Setter
 - (void)setSeletedIndex:(NSInteger)seletedIndex
 {
     _seletedIndex = seletedIndex;
     
-    [self.scrollview setContentOffset:CGPointMake(seletedIndex * self.view.frame.size.width, 0) animated:false];
+    [self.scrollView setContentOffset:CGPointMake(seletedIndex * self.view.frame.size.width, 0) animated:false];
 }
 
-#pragma mark - getter
+#pragma mark - Lazy loading
 - (UIScrollView *)scrollview
 {
-    if (!_scrollview) {
+    if (!_scrollView) {
         UIScrollView *scrollVw = [[UIScrollView alloc] init];
         scrollVw.delegate = self;
         scrollVw.showsVerticalScrollIndicator = false;
@@ -177,9 +177,9 @@
         scrollVw.pagingEnabled = true;
         scrollVw.bounces = false;
         [self.view addSubview:scrollVw];
-        _scrollview = scrollVw;
+        _scrollView = scrollVw;
     }
-    return _scrollview;
+    return _scrollView;
 }
 
 - (NSMutableDictionary *)displayVcs

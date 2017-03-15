@@ -57,11 +57,6 @@
     [self setupView];
 }
 
-- (void)viewDidLayoutSubviews
-{
-    self.pagingViewController.view.frame = CGRectMake(0, kHeaderViewTop, self.view.frame.size.width, self.view.frame.size.height- kHeaderViewTop);
-}
-
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
@@ -93,7 +88,7 @@
 - (FFPagingViewController *)pagingViewController
 {
     if (!_pagingViewController) {
-        _pagingViewController = [[FFPagingViewController alloc] init];
+        _pagingViewController = [[FFPagingViewController alloc] initWithSubviewFrame:CGRectMake(0, kHeaderViewTop, self.view.frame.size.width, self.view.bounds.size.height - kHeaderViewTop - 64.0)];
         _pagingViewController.delegate = self;
         _pagingViewController.dataSource = self;
     }

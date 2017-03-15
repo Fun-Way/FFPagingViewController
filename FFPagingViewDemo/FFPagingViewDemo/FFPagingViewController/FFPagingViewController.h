@@ -27,6 +27,7 @@
 @property(nonatomic, weak) id <FFPagingViewControllerDataSource> dataSource;
 @property (nonatomic, assign) NSInteger seletedIndex;
 
+- (instancetype)initWithSubviewFrame:(CGRect)frame;
 //首次需调用该方法
 - (void)reloadData;
 @end
